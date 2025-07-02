@@ -61,14 +61,14 @@ class Apple(GameObject):
 
 
 class Snake(GameObject):
-    def __init__(self, next_direction=None):
+    def __init__(self):
         super().__init__()
         self.body_color = SNAKE_COLOR
         # self.position = (0, 20)
         self.length = 1
         self.positions = [self.position]
         self.direction = RIGHT
-        self.next_direction = next_direction
+        self.next_direction = None
         self.last = None
 
     def draw(self):
@@ -92,7 +92,8 @@ class Snake(GameObject):
 
     def move(self):
         self.last = self.position
-        self.position = (self.position[0], self.position[1] + GRID_SIZE)
+        self.position = (self.position[0] + self.direction[0] * GRID_SIZE, self.position[1] +
+                         self.direction[1] * GRID_SIZE)
         self.positions[0] = self.position
 
     def update_direction(self):
@@ -130,10 +131,11 @@ def main():
 
     while True:
         clock.tick(SPEED)
-        handle_keys(apple)
+        handle_keys(snake)
         apple.draw()
         snake.draw()
         snake.move()
+        snake.update_direction()
         pygame.display.update()
 
     # Тут опишите основную логику игры.
