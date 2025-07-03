@@ -53,6 +53,8 @@ class Apple(GameObject):
     def __init__(self):
         super().__init__()
         self.body_color = APPLE_COLOR
+        self.position = (choice(range(0, SCREEN_WIDTH - GRID_SIZE, GRID_SIZE)), choice(range(0, SCREEN_HEIGHT -
+                                                                                             GRID_SIZE, GRID_SIZE)))
 
     def draw(self):
         rect = pygame.Rect(self.position, (GRID_SIZE, GRID_SIZE))
@@ -92,6 +94,15 @@ class Snake(GameObject):
 
     def move(self):
         self.last = self.position
+        if self.position[0] < 0:
+            self.position = (SCREEN_WIDTH, self.position[1])
+        elif self.position[0] >= SCREEN_WIDTH:
+            self.position = (0, self.position[1])
+        elif self.position[1] <= 0:
+            self.position = (self.position[0], SCREEN_HEIGHT)
+        elif self.position[1] >= SCREEN_HEIGHT:
+            self.position = (self.position[0], 0)
+
         self.position = (self.position[0] + self.direction[0] * GRID_SIZE, self.position[1] +
                          self.direction[1] * GRID_SIZE)
         self.positions[0] = self.position
