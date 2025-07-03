@@ -27,7 +27,7 @@ APPLE_COLOR = (255, 0, 0)
 SNAKE_COLOR = (0, 255, 0)
 
 # Скорость движения змейки:
-SPEED = 20
+SPEED = 10
 
 # Настройка игрового окна:
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), 0, 32)
@@ -93,19 +93,23 @@ class Snake(GameObject):
         return self.positions[0]
 
     def move(self):
-        self.last = self.position
+        if len(self.positions) >= self.length:
+            self.last = self.positions[-1]
+            self.positions.pop()
         if self.position[0] < 0:
             self.position = (SCREEN_WIDTH, self.position[1])
-        elif self.position[0] >= SCREEN_WIDTH:
+        elif self.position[0] > SCREEN_WIDTH:
             self.position = (0, self.position[1])
-        elif self.position[1] <= 0:
+        elif self.position[1] < 0:
             self.position = (self.position[0], SCREEN_HEIGHT)
-        elif self.position[1] >= SCREEN_HEIGHT:
+        elif self.position[1] > SCREEN_HEIGHT - GRID_SIZE:
             self.position = (self.position[0], 0)
 
         self.position = (self.position[0] + self.direction[0] * GRID_SIZE, self.position[1] +
                          self.direction[1] * GRID_SIZE)
-        self.positions[0] = self.position
+        self.positions.insert(0, self.position)
+        # self.positions[0] = self.position
+        print(self.positions)
 
     def update_direction(self):
         if self.next_direction:
@@ -113,7 +117,11 @@ class Snake(GameObject):
             self.next_direction = None
 
     def reset(self):
+        for item in self.positions:
+            last_rect = pygame.Rect(item, (GRID_SIZE, GRID_SIZE))
+            pygame.draw.rect(screen, BOARD_BACKGROUND_COLOR, last_rect)
         self.length = 1
+        self.position = (SCREEN_WIDTH // 2), (SCREEN_HEIGHT // 2)
         self.positions = [self.position]
 
 
@@ -133,6 +141,18 @@ def handle_keys(game_object):
                 game_object.next_direction = RIGHT
 
 
+def eat_an_apple(apple, snake):
+    if snake.get_head_position() == apple.position:
+        snake.length += 1
+        apple.position = (choice(range(0, SCREEN_WIDTH - GRID_SIZE, GRID_SIZE)), choice(range(0, SCREEN_HEIGHT -
+                                                                                              GRID_SIZE, GRID_SIZE)))
+
+
+def handle_collisions(snake):
+    if snake.get_head_position() in snake.positions[1:]:
+        snake.reset()
+
+
 def main():
     # Инициализация PyGame:
     pygame.init()
@@ -142,15 +162,16 @@ def main():
 
     while True:
         clock.tick(SPEED)
-        handle_keys(snake)
         apple.draw()
         snake.draw()
-        snake.move()
+        handle_keys(snake)
         snake.update_direction()
+        snake.move()
+        eat_an_apple(apple, snake)
+        handle_collisions(snake)
         pygame.display.update()
 
     # Тут опишите основную логику игры.
-    # ...
 
 
 if __name__ == '__main__':
