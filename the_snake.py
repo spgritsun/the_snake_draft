@@ -1,4 +1,4 @@
-from random import choice, randint
+from random import choice
 
 import pygame
 
@@ -93,22 +93,24 @@ class Snake(GameObject):
         return self.positions[0]
 
     def move(self):
-        if len(self.positions) >= self.length:
-            self.last = self.positions[-1]
-            self.positions.pop()
+        self.position = (self.position[0] + self.direction[0] * GRID_SIZE, self.position[1] +
+                         self.direction[1] * GRID_SIZE)
+
         if self.position[0] < 0:
-            self.position = (SCREEN_WIDTH, self.position[1])
-        elif self.position[0] > SCREEN_WIDTH:
+            self.position = (SCREEN_WIDTH - GRID_SIZE, self.position[1])
+        elif self.position[0] > SCREEN_WIDTH - GRID_SIZE:
             self.position = (0, self.position[1])
         elif self.position[1] < 0:
-            self.position = (self.position[0], SCREEN_HEIGHT)
+            self.position = (self.position[0], SCREEN_HEIGHT - GRID_SIZE)
         elif self.position[1] > SCREEN_HEIGHT - GRID_SIZE:
             self.position = (self.position[0], 0)
 
-        self.position = (self.position[0] + self.direction[0] * GRID_SIZE, self.position[1] +
-                         self.direction[1] * GRID_SIZE)
         self.positions.insert(0, self.position)
-        # self.positions[0] = self.position
+
+        if len(self.positions) > self.length:
+            self.last = self.positions[-1]
+            self.positions.pop()
+
         print(self.positions)
 
     def update_direction(self):
@@ -123,6 +125,7 @@ class Snake(GameObject):
         self.length = 1
         self.position = (SCREEN_WIDTH // 2), (SCREEN_HEIGHT // 2)
         self.positions = [self.position]
+        self.direction = RIGHT
 
 
 def handle_keys(game_object):
