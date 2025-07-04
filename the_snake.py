@@ -53,8 +53,10 @@ class Apple(GameObject):
     def __init__(self):
         super().__init__()
         self.body_color = APPLE_COLOR
-        self.position = (choice(range(0, SCREEN_WIDTH - GRID_SIZE, GRID_SIZE)), choice(range(0, SCREEN_HEIGHT -
-                                                                                             GRID_SIZE, GRID_SIZE)))
+
+    def randomize_position(self):
+        self.position = (choice(range(0, SCREEN_WIDTH - GRID_SIZE, GRID_SIZE)),
+                         choice(range(0, SCREEN_HEIGHT - GRID_SIZE, GRID_SIZE)))
 
     def draw(self):
         rect = pygame.Rect(self.position, (GRID_SIZE, GRID_SIZE))
@@ -111,8 +113,6 @@ class Snake(GameObject):
             self.last = self.positions[-1]
             self.positions.pop()
 
-        print(self.positions)
-
     def update_direction(self):
         if self.next_direction:
             self.direction = self.next_direction
@@ -147,8 +147,7 @@ def handle_keys(game_object):
 def eat_an_apple(apple, snake):
     if snake.get_head_position() == apple.position:
         snake.length += 1
-        apple.position = (choice(range(0, SCREEN_WIDTH - GRID_SIZE, GRID_SIZE)), choice(range(0, SCREEN_HEIGHT -
-                                                                                              GRID_SIZE, GRID_SIZE)))
+        apple.randomize_position()
 
 
 def handle_collisions(snake):
@@ -161,6 +160,7 @@ def main():
     pygame.init()
     # Тут нужно создать экземпляры классов.
     apple = Apple()
+    apple.randomize_position()
     snake = Snake()
 
     while True:
