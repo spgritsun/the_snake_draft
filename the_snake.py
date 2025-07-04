@@ -121,9 +121,8 @@ def handle_keys(game_object):
 # Проверка, что рандомно выбранная позиция яблока не попала на змейку.
 # Выбор новой позиции, если попала.
 def check_apple_position(apple, snake):
-    if apple.position in snake.positions:
+    while apple.position in snake.positions:
         apple.randomize_position()
-        check_apple_position(apple, snake)
 
 
 # Обработка события поедания яблока.
@@ -148,13 +147,13 @@ def main():
     # Запускаем основной цикл игры.
     while True:
         clock.tick(SPEED)
-        apple.draw()
-        snake.draw()
         handle_keys(snake)
         snake.update_direction()
         snake.move()
         eat_an_apple(apple, snake)
         snake.handle_collisions()
+        apple.draw()
+        snake.draw()
         pygame.display.update()
 
 
