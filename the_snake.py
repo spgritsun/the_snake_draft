@@ -49,9 +49,9 @@ class GameObject:
         body_color (tuple): Цвет заполнения объекта.
     """
 
-    def __init__(self):
+    def __init__(self, body_color=None):
         self.position = SCREEN_CENTER
-        self.body_color = None
+        self.body_color = body_color
 
     def draw(self):
         """
@@ -70,8 +70,7 @@ class Apple(GameObject):
     """
 
     def __init__(self):
-        super().__init__()
-        self.body_color = APPLE_COLOR
+        super().__init__(body_color=APPLE_COLOR)
 
     # Задает случайное положение яблока на игровом поле.
     def randomize_position(self):
@@ -103,8 +102,7 @@ class Snake(GameObject):
     """
 
     def __init__(self):
-        super().__init__()
-        self.body_color = SNAKE_COLOR
+        super().__init__(body_color=SNAKE_COLOR)
         self.length = 1
         self.positions = [self.position]
         self.direction = RIGHT
