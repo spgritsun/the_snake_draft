@@ -186,25 +186,31 @@ def handle_keys(game_object):
     При нажатии стрелок меняет направление движения переданного объекта,
     проверяя, что нельзя сделать разворот на 180 градусов.
     При получении события QUIT завершает работу приложения.
-
     Параметры:
         game_object: объект с атрибутами direction и next_direction,
         в этом конкретном случае - экземпляр класса Snake.
     """
+    key_to_direction = {
+        pg.K_UP: UP,
+        pg.K_DOWN: DOWN,
+        pg.K_LEFT: LEFT,
+        pg.K_RIGHT: RIGHT
+    }
 
     for event in pg.event.get():
         if event.type == pg.QUIT:
             pg.quit()
             raise SystemExit
+
         elif event.type == pg.KEYDOWN:
-            if event.key == pg.K_UP and game_object.direction != DOWN:
-                game_object.next_direction = UP
-            elif event.key == pg.K_DOWN and game_object.direction != UP:
-                game_object.next_direction = DOWN
-            elif event.key == pg.K_LEFT and game_object.direction != RIGHT:
-                game_object.next_direction = LEFT
-            elif event.key == pg.K_RIGHT and game_object.direction != LEFT:
-                game_object.next_direction = RIGHT
+            if event.key in key_to_direction:
+                new_direction = key_to_direction[event.key]
+                current_direction = game_object.direction
+
+                # Проверка, что новое направление не противоположно текущему
+                if new_direction != (-current_direction[0],
+                                     -current_direction[1]):
+                    game_object.next_direction = new_direction
 
 
 # Обработка события поедания яблока.
