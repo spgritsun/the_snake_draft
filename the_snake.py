@@ -179,15 +179,6 @@ class Snake(GameObject):
         self.direction = RIGHT
         self.next_direction = None
 
-    # Обработка столкновения змейки с собой.
-    def handle_collisions(self):
-        """
-        Проверяет столкновение головы с телом.
-        При обнаружении — сбрасывает змейку.
-        """
-        if self.get_head_position() in self.positions[1:]:
-            self.reset()
-
 
 def handle_keys(game_object):
     """
@@ -200,6 +191,7 @@ def handle_keys(game_object):
         game_object: объект с атрибутами direction и next_direction,
         в этом конкретном случае - экземпляр класса Snake.
     """
+
     for event in pg.event.get():
         if event.type == pg.QUIT:
             pg.quit()
@@ -231,6 +223,16 @@ def eat_an_apple(apple, snake):
         apple.randomize_position(occupied_positions=snake.positions)
 
 
+# Функция проверки столкновений
+def check_self_collision(snake):
+    """
+    Проверяет, столкнулась ли голова змейки с её телом.
+    Возвращает True при столкновении.
+    """
+    head = snake.get_head_position()
+    return head in snake.positions[1:]
+
+
 def main():
     """
     Точка входа в игру. Инициализирует PyGame, создает объекты яблока и змейки,
@@ -255,7 +257,12 @@ def main():
         snake.update_direction()
         snake.move()
         eat_an_apple(apple, snake)
-        snake.handle_collisions()
+
+        # Проверка столкновения змейки с собой (игровая логика)
+        if check_self_collision(snake):
+            snake.reset()
+            apple.randomize_position(occupied_positions=snake.positions)
+
         apple.draw()
         snake.draw()
         pg.display.update()
