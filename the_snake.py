@@ -139,30 +139,20 @@ class Snake(GameObject):
     # Описание движения змейки.
     def move(self):
         """
-        Перемещает голову в направлении self.direction,
-        при выходе за границы экрана — телепортирует
-        на противоположную сторону,
-        обновляет список позиций и запоминает
-        последний сегмент для затирания.
+        Перемещает голову в направлении self.direction
+        с телепортацией через границы.
         """
-        self.position = (
-            self.position[0] + self.direction[0] * GRID_SIZE,
-            self.position[1] + self.direction[1] * GRID_SIZE
-        )
-        # Телепортация при пересечении границ игрового поля.
-        if self.position[0] < 0:
-            self.position = (SCREEN_WIDTH - GRID_SIZE, self.position[1])
-        elif self.position[0] > SCREEN_WIDTH - GRID_SIZE:
-            self.position = (0, self.position[1])
-        elif self.position[1] < 0:
-            self.position = (self.position[0], SCREEN_HEIGHT - GRID_SIZE)
-        elif self.position[1] > SCREEN_HEIGHT - GRID_SIZE:
-            self.position = (self.position[0], 0)
+        x, y = self.position
+        dx, dy = self.direction
 
+        # Применяем формулу телепортации для обеих осей
+        new_x = (x + dx * GRID_SIZE) % SCREEN_WIDTH
+        new_y = (y + dy * GRID_SIZE) % SCREEN_HEIGHT
+
+        self.position = (new_x, new_y)
         self.positions.insert(0, self.position)
 
-        # Определение последнего элемента и удаление
-        # его из списка.
+        # Удаляем последний элемент при превышении длины
         if len(self.positions) > self.length:
             self.positions.pop()
 
