@@ -123,25 +123,13 @@ class Snake(GameObject):
 
     def __init__(self):
         super().__init__(body_color=SNAKE_COLOR)
-        self.length = 1
-        self.positions = [self.position]
-        self.direction = RIGHT
-        self.next_direction = None
-        self.last = None
+        self.reset()
 
     # Отрисовка змейки на экране.
     def draw(self):
-        """
-        Рисует все сегменты змейки на экране:
-        тело, голову и затирает последний сегмент.
-        """
+        """Рисует все сегменты змейки на экране"""
         for position in self.positions:
             self.draw_cell(position)
-
-        # Затирание последнего сегмента
-        if self.last:
-            last_rect = pg.Rect(self.last, (GRID_SIZE, GRID_SIZE))
-            pg.draw.rect(screen, BOARD_BACKGROUND_COLOR, last_rect)
 
     # Определение позиции головы змейки.
     def get_head_position(self):
@@ -173,10 +161,9 @@ class Snake(GameObject):
 
         self.positions.insert(0, self.position)
 
-        # Определение последнего элемента для затирания и удаление
+        # Определение последнего элемента и удаление
         # его из списка.
         if len(self.positions) > self.length:
-            self.last = self.positions[-1]
             self.positions.pop()
 
     # Обработка изменения направления движения.
@@ -196,13 +183,11 @@ class Snake(GameObject):
         очищает список координат сегментов, возвращает длину,
         позицию и направление движения к стартовым параметрам.
         """
-        for item in self.positions:
-            last_rect = pg.Rect(item, (GRID_SIZE, GRID_SIZE))
-            pg.draw.rect(screen, BOARD_BACKGROUND_COLOR, last_rect)
         self.length = 1
         self.position = SCREEN_CENTER
         self.positions = [self.position]
         self.direction = RIGHT
+        self.next_direction = None
 
     # Обработка столкновения змейки с собой.
     def handle_collisions(self):
@@ -274,6 +259,7 @@ def main():
 
     # Запускаем основной цикл игры.
     while True:
+        screen.fill(BOARD_BACKGROUND_COLOR)
         clock.tick(SPEED)
         handle_keys(snake)
         snake.update_direction()
