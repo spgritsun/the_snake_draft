@@ -117,8 +117,7 @@ class Apple(GameObject):
 class Snake(GameObject):
     """
     Класс Змейка. Наследуется от GameObject и отвечает за движение,
-    отрисовку змейки, обработку столкновений с собой и сброс
-    в первоначальное состояние в случае такого события.
+    отрисовку змейки, и сброс в первоначальное состояние.
     """
 
     def __init__(self):
@@ -183,9 +182,8 @@ class Snake(GameObject):
 def handle_keys(game_object):
     """
     Обрабатывает события клавиатуры и системные события PyGame.
-    При нажатии стрелок меняет направление движения переданного объекта,
-    проверяя, что нельзя сделать разворот на 180 градусов.
-    При получении события QUIT завершает работу приложения.
+    При нажатии стрелок меняет направление движения змейки,
+    при нажатии ESC или закрытии окна завершает игру.
     Параметры:
         game_object: объект с атрибутами direction и next_direction,
         в этом конкретном случае - экземпляр класса Snake.
@@ -198,19 +196,31 @@ def handle_keys(game_object):
     }
 
     for event in pg.event.get():
+        # 1. Обработка закрытия окна
         if event.type == pg.QUIT:
             pg.quit()
             raise SystemExit
 
-        elif event.type == pg.KEYDOWN:
-            if event.key in key_to_direction:
-                new_direction = key_to_direction[event.key]
-                current_direction = game_object.direction
+        # 2. Пропускаем все события кроме нажатия клавиш
+        if event.type != pg.KEYDOWN:
+            continue
 
-                # Проверка, что новое направление не противоположно текущему
-                if new_direction != (-current_direction[0],
-                                     -current_direction[1]):
-                    game_object.next_direction = new_direction
+        # 3. Обработка выхода по ESC
+        if event.key == pg.K_ESCAPE:
+            pg.quit()
+            raise SystemExit
+
+        # 4. Пропускаем неподдерживаемые клавиши
+        if event.key not in key_to_direction:
+            continue
+
+        # 5. Основная логика: смена направления
+        new_direction = key_to_direction[event.key]
+        current_direction = game_object.direction
+        opposite_direction = (-current_direction[0], -current_direction[1])
+
+        if new_direction != opposite_direction:
+            game_object.next_direction = new_direction
 
 
 # Обработка события поедания яблока.
