@@ -73,15 +73,25 @@ class Apple(GameObject):
         super().__init__(body_color=APPLE_COLOR)
 
     # Задает случайное положение яблока на игровом поле.
-    def randomize_position(self):
+    def randomize_position(self, occupied_positions=None):
         """
-        Устанавливает случайную позицию яблока
-        так, чтобы его координаты были кратны сетке.
+        Устанавливает случайную позицию яблока так, чтобы:
+        1. Координаты были кратны размеру сетки
+        2. Позиция не совпадала с занятыми змейкой позициями
+        Параметр occupied_positions: список занятых позиций (позиции змейки)
         """
-        self.position = (
-            choice(range(0, SCREEN_WIDTH - GRID_SIZE, GRID_SIZE)),
-            choice(range(0, SCREEN_HEIGHT - GRID_SIZE, GRID_SIZE))
-        )
+
+        if occupied_positions is None:
+            occupied_positions = []
+
+        while True:
+            new_position = (
+                choice(range(0, SCREEN_WIDTH - GRID_SIZE, GRID_SIZE)),
+                choice(range(0, SCREEN_HEIGHT - GRID_SIZE, GRID_SIZE))
+            )
+            if new_position not in occupied_positions:
+                self.position = new_position
+                break
 
     # Отрисовка яблока на экране.
     def draw(self):
@@ -227,23 +237,6 @@ def handle_keys(game_object):
                 game_object.next_direction = RIGHT
 
 
-# Проверка, что рандомно выбранная позиция яблока не попала на змейку.
-# Выбор новой позиции, если попала.
-def check_apple_position(apple, snake):
-    """
-    Проверяет, что текущее положение яблока не совпадает с каким-либо
-    сегментом змейки. Если совпадает, генерирует для яблока новую случайную
-    позицию до тех пор, пока она не окажется свободной.
-    Параметры:
-        apple: экземпляр класса Apple с методом randomize_position().
-        snake: экземпляр класса Snake с атрибутом positions
-        (список координат сегментов змейки).
-    """
-    while apple.position in snake.positions:
-        apple.randomize_position()
-
-
-# Обработка события поедания яблока.
 def eat_an_apple(apple, snake):
     """
     Проверяет, съела ли змея яблоко (совпадение головы змейки
@@ -256,8 +249,7 @@ def eat_an_apple(apple, snake):
     """
     if snake.get_head_position() == apple.position:
         snake.length += 1
-        apple.randomize_position()
-        check_apple_position(apple, snake)
+        apple.randomize_position(occupied_positions=snake.positions)
 
 
 def main():
@@ -274,9 +266,7 @@ def main():
     apple = Apple()
     snake = Snake()
     # Выбираем случайную позицию яблока.
-    apple.randomize_position()
-    # Проверяем, что яблоко не попало на змейку.
-    check_apple_position(apple, snake)
+    apple.randomize_position(occupied_positions=snake.positions)
 
     # Запускаем основной цикл игры.
     while True:
