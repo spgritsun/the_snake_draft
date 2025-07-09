@@ -49,9 +49,10 @@ class GameObject:
         body_color (tuple): Цвет заполнения объекта.
     """
 
-    def __init__(self, body_color=None):
+    def __init__(self, body_color=None, border_color=None):
         self.position = SCREEN_CENTER
         self.body_color = body_color
+        self.border_color = border_color
 
     def draw(self):
         """
@@ -60,6 +61,20 @@ class GameObject:
         """
         raise NotImplementedError(f'Метод draw не определен в классе'
                                   f' {self.__class__.__name__}')
+
+    def draw_cell(self, cell_position):
+        """
+        Общий метод для отрисовки прямоугольной ячейки.
+        Параметры:
+            position: координаты (x, y) для отрисовки
+        Используется body_color и border_color(если задан) объекта.
+        """
+        if self.border_color is None:
+            self.border_color = self.body_color
+        # Создаем прямоугольник и рисуем его
+        rect = pg.Rect(cell_position, (GRID_SIZE, GRID_SIZE))
+        pg.draw.rect(screen, self.body_color, rect)
+        pg.draw.rect(screen, self.border_color, rect, 1)
 
 
 class Apple(GameObject):
@@ -70,7 +85,7 @@ class Apple(GameObject):
     """
 
     def __init__(self):
-        super().__init__(body_color=APPLE_COLOR)
+        super().__init__(body_color=APPLE_COLOR, border_color=BORDER_COLOR)
 
     # Задает случайное положение яблока на игровом поле.
     def randomize_position(self, occupied_positions=None):
@@ -95,13 +110,8 @@ class Apple(GameObject):
 
     # Отрисовка яблока на экране.
     def draw(self):
-        """
-        Рисует яблоко: прямоугольник, заполненный указанным цветом
-        и рамку вокруг него.
-        """
-        rect = pg.Rect(self.position, (GRID_SIZE, GRID_SIZE))
-        pg.draw.rect(screen, self.body_color, rect)
-        pg.draw.rect(screen, BORDER_COLOR, rect, 1)
+        """Используем общий метод draw_cell для отрисовки яблока"""
+        self.draw_cell(self.position)
 
 
 class Snake(GameObject):
@@ -125,15 +135,8 @@ class Snake(GameObject):
         Рисует все сегменты змейки на экране:
         тело, голову и затирает последний сегмент.
         """
-        for position in self.positions[:-1]:
-            rect = (pg.Rect(position, (GRID_SIZE, GRID_SIZE)))
-            pg.draw.rect(screen, self.body_color, rect)
-            pg.draw.rect(screen, BORDER_COLOR, rect, 1)
-
-        # Отрисовка головы змейки
-        head_rect = pg.Rect(self.positions[0], (GRID_SIZE, GRID_SIZE))
-        pg.draw.rect(screen, self.body_color, head_rect)
-        pg.draw.rect(screen, BORDER_COLOR, head_rect, 1)
+        for position in self.positions:
+            self.draw_cell(position)
 
         # Затирание последнего сегмента
         if self.last:
