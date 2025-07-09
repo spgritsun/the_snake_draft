@@ -237,6 +237,7 @@ def handle_keys(game_object):
                 game_object.next_direction = RIGHT
 
 
+# Обработка события поедания яблока.
 def eat_an_apple(apple, snake):
     """
     Проверяет, съела ли змея яблоко (совпадение головы змейки
