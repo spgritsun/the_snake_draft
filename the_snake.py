@@ -84,8 +84,8 @@ class Apple(GameObject):
     случайное размещение и отрисовку яблока.
     """
 
-    def __init__(self):
-        super().__init__(body_color=APPLE_COLOR, border_color=BORDER_COLOR)
+    def __init__(self, body_color=APPLE_COLOR, border_color=BORDER_COLOR):
+        super().__init__(body_color=body_color, border_color=border_color)
 
     # Задает случайное положение яблока на игровом поле.
     def randomize_position(self, occupied_positions=None):
@@ -120,8 +120,8 @@ class Snake(GameObject):
     отрисовку змейки, и сброс в первоначальное состояние.
     """
 
-    def __init__(self):
-        super().__init__(body_color=SNAKE_COLOR)
+    def __init__(self, body_color=SNAKE_COLOR, border_color=None):
+        super().__init__(body_color=body_color, border_color=border_color)
         self.reset()
 
     # Отрисовка змейки на экране.
