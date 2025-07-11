@@ -249,78 +249,74 @@ def check_self_collision(snake):
     return head in snake.positions[1:]
 
 
-def main():
-    """
-    Точка входа в игру. Инициализирует PyGame, создает объекты яблока и змейки,
-    устанавливает первую позицию яблока и запускает основной игровой цикл:
-    чтение ввода с клавиатуры, обновление направления и положения змейки,
-    проверка столкновений, поедания яблока, отрисовка объектов
-    и обновление экрана.
-    """
-    # Инициализация PyGame:
-    pg.init()
-    # Тут создаем экземпляры классов.
-    apple = Apple()
-    snake = Snake()
-    # Выбираем случайную позицию яблока.
-    apple.randomize_position(occupied_positions=snake.positions)
-
-    # Очистка экрана один раз при запуске
+def reset_game(apple, snake):
+    """Сбрасывает игру и полностью перерисовывает экран"""
     screen.fill(BOARD_BACKGROUND_COLOR)
+    snake.reset()
+    apple.randomize_position(occupied_positions=snake.positions)
     apple.draw()
     snake.draw()
     pg.display.update()
 
-    # Запускаем основной цикл игры.
+
+def partial_redraw(snake, apple, old_tail, old_apple_position):
+    """Выполняет частичную перерисовку экрана"""
+    # Затираем старый хвост
+    if old_tail:
+        pg.draw.rect(screen, BOARD_BACKGROUND_COLOR,
+                     pg.Rect(old_tail, (GRID_SIZE, GRID_SIZE)))
+
+    # Затираем старое яблоко, если оно переместилось и не закрыто
+    # головой змейки
+    if old_apple_position != apple.position \
+            and old_apple_position != snake.positions[0]:
+        pg.draw.rect(screen, BOARD_BACKGROUND_COLOR,
+                     pg.Rect(old_apple_position, (GRID_SIZE, GRID_SIZE)))
+
+    # Рисуем новую голову змейки
+    snake.draw_cell(snake.positions[0])
+
+    # Рисуем новое яблоко, если оно переместилось
+    if old_apple_position != apple.position:
+        apple.draw_cell(apple.position)
+
+    pg.display.update()
+
+
+def main():
+    """Основная функция игры"""
+    # Инициализация игры
+    pg.init()
+    apple = Apple()
+    snake = Snake()
+    apple.randomize_position(occupied_positions=snake.positions)
+
+    # Первоначальная отрисовка
+    reset_game(apple, snake)
+
+    # Основной игровой цикл
     while True:
         clock.tick(SPEED)
+
+        # Обработка ввода
         handle_keys(snake)
         snake.update_direction()
 
-        # Сохраняем позицию хвоста до движения
-        old_tail = None
-        if snake.positions:
-            old_tail = snake.positions[-1]
-
-        snake.move()
-
-        # Сохраняем позицию яблока до проверки съедения
+        # Сохраняем состояние перед обновлением
+        old_tail = snake.positions[-1] if snake.positions else None
         old_apple_position = apple.position
+
+        # Обновление игрового состояния
+        snake.move()
         eat_an_apple(apple, snake)
 
-        # Проверка столкновения змейки с собой (игровая логика)
+        # Проверка столкновений
         if check_self_collision(snake):
-            # Очистка экрана при сбросе
-            screen.fill(BOARD_BACKGROUND_COLOR)
-            snake.reset()
-            apple.randomize_position(occupied_positions=snake.positions)
-            apple.draw()
-            snake.draw()
-            pg.display.update()
+            reset_game(apple, snake)
             continue
 
-        # Закрашиваем старый хвост (если он был)
-        if old_tail:
-            pg.draw.rect(screen, BOARD_BACKGROUND_COLOR,
-                         pg.Rect(old_tail, (GRID_SIZE, GRID_SIZE)))
-
-        # Если яблоко переместилось, затираем его старую позицию
-        if old_apple_position != apple.position:
-            # Затираем только если старая позиция не совпадает с новой
-            # головой змейки
-            if old_apple_position != snake.positions[0]:
-                pg.draw.rect(
-                    screen, BOARD_BACKGROUND_COLOR,
-                    pg.Rect(old_apple_position, (GRID_SIZE, GRID_SIZE)))
-
-        # Рисуем новую голову змейки
-        snake.draw_cell(snake.positions[0])
-
-        # Рисуем яблоко на новой позиции (если оно переместилось)
-        if old_apple_position != apple.position:
-            apple.draw_cell(apple.position)
-
-        pg.display.update()
+        # Частичная перерисовка экрана
+        partial_redraw(snake, apple, old_tail, old_apple_position)
 
 
 if __name__ == '__main__':
