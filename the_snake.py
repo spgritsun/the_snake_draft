@@ -265,22 +265,61 @@ def main():
     # Выбираем случайную позицию яблока.
     apple.randomize_position(occupied_positions=snake.positions)
 
+    # Очистка экрана один раз при запуске
+    screen.fill(BOARD_BACKGROUND_COLOR)
+    apple.draw()
+    snake.draw()
+    pg.display.update()
+
     # Запускаем основной цикл игры.
     while True:
-        screen.fill(BOARD_BACKGROUND_COLOR)
         clock.tick(SPEED)
         handle_keys(snake)
         snake.update_direction()
+
+        # Сохраняем позицию хвоста до движения
+        old_tail = None
+        if snake.positions:
+            old_tail = snake.positions[-1]
+
         snake.move()
+
+        # Сохраняем позицию яблока до проверки съедения
+        old_apple_position = apple.position
         eat_an_apple(apple, snake)
 
         # Проверка столкновения змейки с собой (игровая логика)
         if check_self_collision(snake):
+            # Очистка экрана при сбросе
+            screen.fill(BOARD_BACKGROUND_COLOR)
             snake.reset()
             apple.randomize_position(occupied_positions=snake.positions)
+            apple.draw()
+            snake.draw()
+            pg.display.update()
+            continue
 
-        apple.draw()
-        snake.draw()
+        # Закрашиваем старый хвост (если он был)
+        if old_tail:
+            pg.draw.rect(screen, BOARD_BACKGROUND_COLOR,
+                         pg.Rect(old_tail, (GRID_SIZE, GRID_SIZE)))
+
+        # Если яблоко переместилось, затираем его старую позицию
+        if old_apple_position != apple.position:
+            # Затираем только если старая позиция не совпадает с новой
+            # головой змейки
+            if old_apple_position != snake.positions[0]:
+                pg.draw.rect(
+                    screen, BOARD_BACKGROUND_COLOR,
+                    pg.Rect(old_apple_position, (GRID_SIZE, GRID_SIZE)))
+
+        # Рисуем новую голову змейки
+        snake.draw_cell(snake.positions[0])
+
+        # Рисуем яблоко на новой позиции (если оно переместилось)
+        if old_apple_position != apple.position:
+            apple.draw_cell(apple.position)
+
         pg.display.update()
 
 
